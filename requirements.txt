@@ -1,0 +1,26 @@
+# requirements.txt — Project 1: Multi-Model Sentiment Ensemble
+# PyTorch is installed separately in setup_env.sh (needs --index-url flag)
+# Install with: python -m pip install -r requirements.txt
+ 
+# HuggingFace ecosystem
+transformers==4.40.0
+datasets==2.19.0
+huggingface-hub==0.23.0
+ 
+# NLP tools
+nltk==3.8.1
+spacy==3.8.4
+vaderSentiment==3.3.2
+ 
+# Gradio demo
+gradio==4.31.0
+ 
+# Data & visualization
+pandas==2.2.2
+matplotlib==3.8.4
+seaborn==0.13.2
+scikit-learn==1.4.2
+ 
+# Jupyter
+jupyter==1.0.0
+ipykernel==6.29.4

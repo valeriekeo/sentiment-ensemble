@@ -1,0 +1,4 @@
+[ZoneTransfer]
+ZoneId=3
+ReferrerUrl=https://claude.ai/chat/f8e81adc-137a-4b31-b598-78c2e218b0ca
+HostUrl=https://claude.ai/api/organizations/17bfe978-7686-4bfd-bb8b-65e4f4de17e8/conversations/f8e81adc-137a-4b31-b598-78c2e218b0ca/wiggle/download-file?path=%2Fmnt%2Fuser-data%2Foutputs%2Fsetup_env.sh
