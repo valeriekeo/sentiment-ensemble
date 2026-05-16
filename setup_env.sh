@@ -43,6 +43,22 @@ if torch.cuda.is_available():
     print(f'VRAM: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB')
 "
 
+# Install zstd (required for Ollama installer)
+echo "Installing zstd dependency..."
+sudo apt-get install zstd -y
+
+# Install Ollama if not already installed
+if ! command -v ollama &> /dev/null; then
+    echo "Installing Ollama..."
+    curl -fsSL https://ollama.com/install.sh | sh
+else
+    echo "Ollama already installed — skipping."
+fi
+
+# Pull Llama 3 model
+echo "Pulling Llama 3 model (4.7GB — may take a few minutes)..."
+ollama pull llama3
+
 echo ""
 echo "Done. Activate your environment with:"
 echo "  conda activate $ENV_NAME"
