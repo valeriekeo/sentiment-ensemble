@@ -156,7 +156,9 @@ Do not include any text outside the JSON object."""
         )
         
         raw = response.choices[0].message.content
-        cleaned = re.sub(r'```json\s*|\s*```', '', response).strip()
+        if not isinstance(raw, str):
+            raw = str(raw)
+        cleaned = re.sub(r'```json\s*|\s*```', '', raw).strip()
         parsed = json.loads(cleaned)
         
         return {
