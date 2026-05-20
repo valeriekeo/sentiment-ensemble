@@ -1,0 +1,77 @@
+# deploy.yml
+# GitHub Actions CI/CD pipeline for HuggingFace Space sentiment-triage-pipeline
+# Runs on every push to main:
+#   1. Installs dependencies and runs pytest
+#   2. If tests pass, deploys to HuggingFace Space automatically
+
+name: Test and Deploy to HuggingFace Spaces
+
+# on defines what triggers the workflow
+on:
+  push:
+    branches: [main]  # run when code is pushed to main
+  pull_request:
+    branches: [main]  # run when a PR targets main
+
+jobs:
+  # Runs pytest in every push and pull request
+  # Deploy job will not run if this fails
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # Install what's neede for tests
+      # CPU-only PyTorch is faster to install thann CUDA
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install transformers==4.40.0 vaderSentiment==3.3.2 pytest numpy
+
+      # Run all tests in the tests/ directory with verbose output
+      - name: Run tests
+        run: pytest tests/ -v
+
+  # Deploy job
+  deploy:
+    needs: test   # Wait for test job to pass before deploying
+    runs-on: ubuntu-latest
+    # Only deploy on direct pushes to main, not pull requests
+    # HF_TOKEN is a GitHub secret
+    # The Space rebuilds automatically when pushes made to repo
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Push relevant files to HuggingSpace repo
+      # HUGGINGFACE_TOKEN
+      - name: Push to HuggingFace Space
+        env:
+          HF_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
+        run: |
+          git clone https://valkeo:$HF_TOKEN@huggingface.co/spaces/valkeo/sentiment-triage-pipeline hf_space
+          
+          # Copy app files to Space repo
+          cp app.py hf_space/
+          cp -r src/ hf_space/
+          cp requirements-space.txt hf_space/requirements.txt
+          
+          # Commit and push
+          cd hf_space
+          git config user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+          git add .
+          
+          # Only commit if there are changes
+          git diff --staged --quiet || git commit -m "Deploy from GitHub commit ${{ github.sha }}"
+          git push
