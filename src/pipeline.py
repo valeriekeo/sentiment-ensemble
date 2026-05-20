@@ -121,7 +121,7 @@ def run_llm(text, hf_token, model="meta-llama/Meta-Llama-3-8B-Instruct"):
     Only called when RoBERTa and VADER disagree significantly.
     Uses the same few-shot prompt engineering validated in notebooks.
     """
-    client = InferenceClient(model=model, token=hf_token)
+    client = InferenceClient(provider="novita", api_key=hf_token)
     
     prompt = f"""You are a sentiment classifier. Classify tweets as positive, negative, or neutral.
 
@@ -147,12 +147,15 @@ The confidence score must be a value between 0.0 and 1.0.
 Do not include any text outside the JSON object."""
 
     try:
-        response = client.text_generation(
-            prompt,
-            max_new_tokens=150,
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=150,
             temperature=0.0,
+            stream=False
         )
         
+        raw = response.choices[0].message.content
         cleaned = re.sub(r'```json\s*|\s*```', '', response).strip()
         parsed = json.loads(cleaned)
         
