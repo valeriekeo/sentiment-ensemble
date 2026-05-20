@@ -269,11 +269,16 @@ def analyze_tweet(text, models):
         roberta_label=roberta_result['label']
     )
 
+    print(f"DEBUG confidence: {confidence}", flush=True)
+    print(f"DEBUG hf_token present: {bool(models.get('hf_token'))}", flush=True)
+
     llm_result = None
     final_sentiment = roberta_result['label']
     
     if confidence == 'LOW' and models.get('hf_token'):
+        print("DEBUG entering LLM branch", flush=True)
         llm_result = run_llm(text, models['hf_token'])
+        print(f"DEBUG llm_result: {llm_result}", flush=True)
         if not llm_result['parse_error'] and llm_result['label']:
             final_sentiment = llm_result['label']
 
